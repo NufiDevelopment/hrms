@@ -1,0 +1,19 @@
+FROM frappe/bench:latest
+
+# Set working directory
+WORKDIR /home/frappe
+
+# Copy the init script
+COPY docker/init.sh /workspace/init.sh
+
+# Copy the local HRMS code
+COPY hrms /workspace/hrms
+
+# Set environment variables
+ENV SHELL=/bin/bash
+
+# Expose port 80
+EXPOSE 80
+
+# Run the initialization script
+CMD ["bash", "/workspace/init.sh"] 

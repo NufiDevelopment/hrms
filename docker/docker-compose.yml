@@ -15,17 +15,38 @@ services:
   redis:
     image: redis:alpine
 
-  frappe:
+  # Stable version (downloaded from GitHub) - Port 80
+  hrms-stable:
     image: frappe/bench:latest
-    command: bash /workspace/init.sh
+    command: bash /workspace/init-stable.sh
     environment:
       - SHELL=/bin/bash
     working_dir: /home/frappe
     volumes:
       - .:/workspace
     ports:
-      - 8000:8000
+      - 80:8000
       - 9000:9000
+    depends_on:
+      - mariadb
+      - redis
+
+  # Development version (local HRMS code) - Port 3000
+  hrms-dev:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.hrms
+    environment:
+      - SHELL=/bin/bash
+    working_dir: /home/frappe
+    volumes:
+      - .:/workspace
+    ports:
+      - 3000:8000
+      - 9001:9000
+    depends_on:
+      - mariadb
+      - redis
 
 volumes:
   mariadb-data:

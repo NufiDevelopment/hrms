@@ -1,7 +1,5 @@
 #!bin/bash
 
-echo "=== HRMS DEVELOPMENT VERSION INITIALIZATION ==="
-
 if [ -d "/home/frappe/frappe-bench/apps/frappe" ]; then
     echo "Bench already exists, skipping init"
     cd frappe-bench
@@ -27,10 +25,7 @@ sed -i '/redis/d' ./Procfile
 sed -i '/watch/d' ./Procfile
 
 bench get-app erpnext
-
-# Use local HRMS code instead of downloading from GitHub
-echo "Using local HRMS development code..."
-cp -r /workspace/hrms ./apps/hrms
+bench get-app hrms
 
 bench new-site hrms.localhost \
 --force \
@@ -44,5 +39,4 @@ bench --site hrms.localhost enable-scheduler
 bench --site hrms.localhost clear-cache
 bench use hrms.localhost
 
-echo "=== HRMS DEVELOPMENT VERSION READY ==="
-bench start
+bench start 

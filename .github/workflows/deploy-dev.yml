@@ -1,0 +1,67 @@
+name: Deploy Development Version
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy-dev:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy Development Version
+        run: |
+          ssh ${{ secrets.EC2_HOST }} '
+            echo "🚀 Starting development version deployment..."
+            
+            cd /home/ubuntu/hrms/docker
+            
+            # Pull latest code
+            echo "📥 Pulling latest code..."
+            git pull origin main
+            
+            # Stop development container
+            echo "📦 Stopping development container..."
+            docker compose down hrms-dev || true
+            
+            # Remove old development image
+            echo "🗑️ Removing old development image..."
+            docker rmi docker-hrms-dev 2>/dev/null || echo "No old image to remove"
+            
+            # Build new development version
+            echo "🔨 Building new development version..."
+            docker compose build --no-cache hrms-dev
+            
+            # Start development version
+            echo "🚀 Starting development version..."
+            docker compose up -d hrms-dev
+            
+            # Wait for service to be ready
+            echo "⏳ Waiting for service to be ready..."
+            sleep 30
+            
+            # Check if service is running
+            if curl -f -s http://localhost:3000 > /dev/null; then
+              echo "✅ Development version deployed successfully!"
+              echo "🌐 Access URL: http://${{ secrets.EC2_HOST }}:3000"
+            else
+              echo "❌ Development version failed to start"
+              echo "📋 Recent logs:"
+              docker compose logs --tail=20 hrms-dev
+              exit 1
+            fi
+            
+            echo "📊 Container Status:"
+            docker compose ps hrms-dev
+          ' 

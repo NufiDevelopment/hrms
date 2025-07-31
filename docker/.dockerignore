@@ -1,0 +1,45 @@
+# Git
+.git
+.gitignore
+.gitmodules
+
+# Documentation
+README.md
+*.md
+
+# Development files
+.editorconfig
+.pre-commit-config.yaml
+.releaserc
+.semgrepignore
+codecov.yml
+commitlint.config.js
+crowdin.yml
+
+# Node modules and build artifacts
+node_modules/
+dist/
+build/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
